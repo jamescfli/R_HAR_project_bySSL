@@ -75,14 +75,6 @@ summary(bestmod)
 # # check whether SVM can overfit or not
 res.libsvm <- predict(bestmod, trainDataSetAfterScaling[, -1])
 table(Predict = res.libsvm, Truth = trainDataSetAfterScaling[, 1])
-#             Truth
-# Predict      biking downstairs running still upstairs walking
-# biking        743          0       0     4        0       0
-# downstairs      0        747       0     0        0       0
-# running         0          0     747     0        0       0
-# still           4          0       0   743        0       0
-# upstairs        0          0       0     0      747       0
-# walking         0          0       0     0        0     747
 yy.res.libsvm <- vector(mode="numeric", length=length(res.libsvm))
 yy.res.libsvm[res.libsvm == 'biking'] <- 1
 yy.res.libsvm[res.libsvm == 'downstairs'] <- 2
@@ -90,6 +82,7 @@ yy.res.libsvm[res.libsvm == 'running'] <- 3
 yy.res.libsvm[res.libsvm == 'still'] <- 4
 yy.res.libsvm[res.libsvm == 'upstairs'] <- 5
 yy.res.libsvm[res.libsvm == 'walking'] <- 6
+# # Graph 1
 dev.new()
 plot(yy.res.libsvm)
 abline(v=(1:5)*length(yy.res.libsvm)/6, lty=2, col='red')
@@ -99,9 +92,11 @@ library(upclass)
 sslTotalDataSet <- as.matrix(trainDataSetAfterScaling[,-1]) # 4482 * 14
 sslTotalLabels <- as.matrix(trainDataSetAfterScaling[, 1]) # 4482 * 1
 # # total time length (in secs) for labeled data, * 16Hz = # of samples
-timeLengthInSecOfLabeledData <- 10
-numLabeledSamplesForEachCategory <- timeLengthInSecOfLabeledData*16
-sslLabeledDataIndexForEachCategory <- sort(sample(1:(nrow(trainDataSetAfterScaling)/6), numLabeledSamplesForEachCategory)) # sorted 160 samples in 1:747
+timeLengthInSecOfLabeledData <- 200     # in secs
+numLabeledSamples <- timeLengthInSecOfLabeledData * 16  # samples in raw data
+# # (x-1)*s + l <= L where s = 16L (.nsizeSlidingWindow), l = 64L (.nrowSegment), L = 10*16 (numLabeledSamples)
+numLabeledFeatureRows <- (numLabeledSamples-.nrowSegment) %/% .nsizeSlidingWindow + 1
+sslLabeledDataIndexForEachCategory <- sort(sample(1:(nrow(trainDataSetAfterScaling)/6), numLabeledFeatureRows)) # sorted 160 samples in 1:747
 sslLabeledDataIndex <- rep((0:5)*(nrow(trainDataSetAfterScaling)/6), each=length(sslLabeledDataIndexForEachCategory)) + sslLabeledDataIndexForEachCategory
 
 sslLabeledData <- sslTotalDataSet[sslLabeledDataIndex,]
@@ -110,23 +105,25 @@ sslLabeledLabel <- sslTotalLabels[sslLabeledDataIndex]
 sslUnlabeledDataIndex <- setdiff(1:nrow(trainDataSetAfterScaling), sslLabeledDataIndex)
 sslUnlabeledData <- sslTotalDataSet[sslUnlabeledDataIndex,]
 sslUnlabeledLabel <- sslTotalLabels[sslUnlabeledDataIndex]
-fitupmodels <- upclassify(sslLabeledData, sslLabeledLabel, sslUnlabeledData, sslUnlabeledLabel) # testing every model and provide the best model out of EEI, VVI, and others 9 models
-# .. Result:
-#   > summary(fitupmodels)
-#   Model Name
-#       VVV
-#   Log Likelihood
-#       -47334.5
-#   Dimension
-#       14
-#   Ntrain
-#       960
-#   Ntest
-#       3522
-#   bic
-#       -100714.2
-#   Total Misclassified:  49
-#       Misclassification Rate:   1.391 % (=49/(4482-960))
+fitupmodels <- upclassify(sslLabeledData, sslLabeledLabel, sslUnlabeledData, sslUnlabeledLabel) # testing every model and provide the best model (name: VVV) out of EEI, VVI, and others 9 models
+# # Graph 1
 dev.new()
 plot(fitupmodels)
+summary(fitupmodels)
+yy.res.upclass.best <- fitupmodels$Best$test$cl
+res.upclass.best <- vector(mode="character", length=length(yy.res.upclass.best))
+res.upclass.best[yy.res.upclass.best == 1] <- 'biking'
+res.upclass.best[yy.res.upclass.best == 2] <- 'downstairs'
+res.upclass.best[yy.res.upclass.best == 3] <- 'running'
+res.upclass.best[yy.res.upclass.best == 4] <- 'still'
+res.upclass.best[yy.res.upclass.best == 5] <- 'upstairs'
+res.upclass.best[yy.res.upclass.best == 6] <- 'walking'
+table(Predict = res.upclass.best, Truth = sslUnlabeledLabel)
+# # Graph 2
+dev.new()
+plot(yy.res.upclass.best)
+abline(v=(1:5)*length(yy.res.upclass.best)/6, lty=2, col='red')
+
+
+
 
