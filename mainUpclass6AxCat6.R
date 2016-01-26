@@ -92,7 +92,7 @@ library(upclass)
 sslTotalDataSet <- as.matrix(trainDataSetAfterScaling[,-1]) # 4482 * 14
 sslTotalLabels <- as.matrix(trainDataSetAfterScaling[, 1]) # 4482 * 1
 # # total time length (in secs) for labeled data, * 16Hz = # of samples
-timeLengthInSecOfLabeledData <- 200     # in secs
+timeLengthInSecOfLabeledData <- 8     # in secs
 numLabeledSamples <- timeLengthInSecOfLabeledData * 16  # samples in raw data
 # # (x-1)*s + l <= L where s = 16L (.nsizeSlidingWindow), l = 64L (.nrowSegment), L = 10*16 (numLabeledSamples)
 numLabeledFeatureRows <- (numLabeledSamples-.nrowSegment) %/% .nsizeSlidingWindow + 1
@@ -118,12 +118,14 @@ res.upclass.best[yy.res.upclass.best == 3] <- 'running'
 res.upclass.best[yy.res.upclass.best == 4] <- 'still'
 res.upclass.best[yy.res.upclass.best == 5] <- 'upstairs'
 res.upclass.best[yy.res.upclass.best == 6] <- 'walking'
-table(Predict = res.upclass.best, Truth = sslUnlabeledLabel)
+table(Predict = res.upclass.best, Truth = sslUnlabeledLabel)    # should be equivalent to fitupmodels$Best$test$tab
 # # Graph 2
 dev.new()
 plot(yy.res.upclass.best)
 abline(v=(1:5)*length(yy.res.upclass.best)/6, lty=2, col='red')
-
-
+# # according to the result the best model is VVI, we try to verify it by
+res.predict.vvi.model <- upclassify(sslLabeledData, sslLabeledLabel, sslUnlabeledData, modelscope = 'VVI')
+table(res.predict.vvi.model$VVI$test$cl, yy.res.upclass.best)       # res.predict.vvi.model$Best$test$tab
+summary(res.predict.vvi.model$VVI$test$cl - yy.res.upclass.best)    # verify they are identical, all 0's vector
 
 
