@@ -1,39 +1,40 @@
 # # ReadGenTest6AxData20151222_.R
 
-# # Description:
+# # Description: To be rewrite for Upclass model VVI or VVV ...
 
 # # Note: run the first half of 'mainUpclass6AxCat6.R', add testing data to sslUnlabeledData for upclass
 
 .totalNumberOfRows <- 12000
-.columnNamesFor3Ax <- c("aX","aY","aZ")
+.columnNamesFor6Ax <- c("aX","aY","aZ", "gX","gY","gZ")
 
 # # read raw data from sqlite files, 6Ax raw data read
 # 1)
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_RUNNING_football_160109T082912.db")  # 12472 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_RUNNING_football_160109T082912.db")  # 12472 samples
 # 2) this case requires some extra care
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_WALKING_handinpocket_160111T084156.db")  # 12854 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_WALKING_handinpocket_160111T084156.db")  # 12854 samples
 # 3) first half with hand in pocket (still recognized as 'running'), second half release hand and dangle in the air (can be recognized)
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_WALKING_1stHALFhandinpocketAND2ndHALFnormal_160111T120515.db")  # 12757 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_WALKING_1stHALFhandinpocketAND2ndHALFnormal_160111T120515.db")  # 12757 samples
 # 4)
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_BIKING_diffbike_160111T132648.db")  # 12726 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_BIKING_diffbike_160111T132648.db")  # 12726 samples
 # 5) walk with high rised arms
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_WALKING_armrise_160112T084959.db")  # 12799 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_WALKING_armrise_160112T084959.db")  # 12799 samples
 # 6) biking with left hand dangle in the air
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_BIKING_handdangle_160112T120402.db")  # 12620 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_BIKING_handdangle_160112T120402.db")  # 12620 samples
 # 7)
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_DRIVING_handonlap_160112T215529.db")  # 12823 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_DRIVING_handonlap_160112T215529.db")  # 12823 samples
 # 8)
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_DRIVING_handonlap_160112T222540.db")  # 12937 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_DRIVING_handonlap_160112T222540.db")  # 12937 samples
 # 9) standing before window in NLC
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_STILL_standing_160113T155010.db")  # 12937 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_STILL_standing_160113T155010.db")  # 12937 samples
 # 10) walking - hand up in the air and eating
-.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="TicWatchMeasure6Ax16Hz/Testing/JAMES_3_measure_WALKING_eatwhandinair_160115T090340.db")  # 12929 samples
+.connectToDb <- dbConnect(drv=RSQLite::SQLite(), dbname="DataSets/Testing/JAMES_3_measure_WALKING_eatwhandinair_160115T090340.db")  # 12929 samples
 
 .raw <- dbGetQuery(conn=.connectToDb, statement="SELECT * FROM measurements")
-.rawData <- as.matrix(.raw)[81:(.totalNumberOfRows+80), c(3,4,5)]
-colnames(.rawData) <- .columnNamesFor3Ax
+.rawData <- as.matrix(.raw)[81:(.totalNumberOfRows+80), c(3,4,5,7,8,9)]  # discard _id and timestamps
+colnames(.rawData) <- .columnNamesFor6Ax
 
-# # preprocessing (TBD, we did not do any preprocessing at the current stage)
+# # preprocessing, related function has been loaded in 'mainUpclass6AxCat6.R'
+
 
 # # activityCategories is already defined in 'mainE1071SvmCrossValid6Ax.R'
 
